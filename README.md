@@ -9,9 +9,28 @@ The state is continually updated using a timer. Each timer tick updates the stat
 
 ## Status: WIP
 
-Currently this app is a WIP. It was extracted from a `TypeSpeed` Fable 1.x app, now being converted for Fable 2.x.
+This app was extracted from `TypeSpeed`, a Fable 1.x app, then simplified and converted to work with Fable 2.x.
 
-Please see [migrate to fable 2.1](https://www.selketjah.com/fable/2018/12/18/migrate-to-fable21/) and help out :)
+See [migrate to fable 2.1](https://www.selketjah.com/fable/2018/12/18/migrate-to-fable21/)
+
+You can run the project by doing:
+
+Development mode
+
+```bash
+yarn install
+npx webpack-dev-server
+```
+
+Production mode
+
+```bash
+yarn install
+npx webpack
+```
+
+The application compiles and is displayed in the browser.
+However, when button is clicked nothing happens (yet). There is a bug in the code which will be fixed shortly. Feel free to help out :)
 
 ## Requirements
 
