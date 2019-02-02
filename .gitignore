@@ -9,5 +9,5 @@ bin/
 output/
 .fake/
 temp/
-.paket
 .vscode
+.fable
