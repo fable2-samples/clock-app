@@ -3,15 +3,11 @@
 This project is a simple web app written in [Fable](http://fable.io/).
 You can find more templates by searching `Fable.Template` packages in [Nuget](https://www.nuget.org).
 
-This Clock app demonstrates a `model` - `update` - `render` loop (simple "elmish like" design)
+This Clock app demonstrates a `event` -> `update` -> `render` loop (simple "elmish like" design)
 
 The state is continually updated using a timer. Each timer tick updates the state, forcing an update of the view.
 
-## Status: WIP
-
-This app was extracted from `TypeSpeed`, a Fable 1.x app, then simplified and converted to work with Fable 2.x.
-
-See [migrate to fable 2.1](https://www.selketjah.com/fable/2018/12/18/migrate-to-fable21/)
+## Run the app
 
 You can run the project by doing:
 
@@ -29,8 +25,64 @@ yarn install
 npx webpack
 ```
 
+Note: Please have patience and give webpack up to 5 secs to display its progress. It needs to warm up first ;)
+
+Alternatively use:
+
+- `yarn run start:dev` to start webpack dev server (hot reload)
+- `yarn run start:prod` for production webpack server (using minified build)
+
 The application compiles and is displayed in the browser.
 However, when button is clicked nothing happens (yet). There is a bug in the code which will be fixed shortly. Feel free to help out :)
+
+## Monitor program flow
+
+The program has a number of `printf` statements which call `console.log` to the browser console.
+
+- Open the browser console to monitor and track the internal program flow.
+- Add more information to these logs as needed.
+
+## Clock app design
+
+### Domain model
+
+`Model.fs` specifies the domain model.
+
+The `Status` type defined each of the states of the app
+
+- `Initial` (Clock not started/ticking)
+- `Ticking` (Clock is started and ticking)
+
+The `Message` type defines the different types of Messages the app can dispatch (and receive).
+
+### Dispatcher
+
+A `dispatcher` is defined using a `MailboxProcessor` which takes incoming `Message`s to be processed.
+
+For each message `msg` received, the `dispatcher` calls `update model msg` to update and create a new (derived) `model`.
+
+`let newModel = update model msg`
+
+The dispatcher then calls `view newModel dispatcher` to render the view using the new `model`.
+
+### Update model
+
+The `update` function (in `Core.fs`) takes the `model` and a `message` and updates the model depending on the type of message received.
+
+- `Tick` calls `updateTime` with the time of the model
+- `Reset` sets model Time to initial time: `[0;0;0;0];`
+- `Start` sets `Status` to `Ticking` if currently `Status` is `Initial` in order to to make the app start ticking!
+
+The function `updateTime` simply calculates and returns the new time to be displayed (`int list -> int list`)
+
+### View update
+
+The `view` function updates the view depending on the incoming app `Status` that is matched
+
+- `Initial` sets the timer element to `"00:00:00"` stops the current timer by deleting it from window
+- `Ticking` if there is no timer set on the `window` it creates a new one
+
+On any view call, it calls `viewTime` with the current `time` to be displayed in the timer element (`#timer`).
 
 ## Requirements
 
@@ -88,7 +140,7 @@ Any modification you do to the F# code will be reflected in the web page after s
 
 [Webpack](https://webpack.js.org) is a bundler, which links different JS sources into a single file making deployment much easier. It also offers other features, like a static dev server that can automatically refresh the browser upon changes in your code or a minifier for production release. Fable interacts with Webpack through the `fable-loader`.
 
-Webpack configuration files are in the `tools` directory. If you need to edit them, check [Webpack](https://webpack.js.org) website for more information.
+There is a single Webpack configuration file `webpack.config.js` are in the root directory. If you need to edit it, check [Webpack](https://webpack.js.org) website for more information.
 
 ### F# source files
 
@@ -97,7 +149,7 @@ The template only contains two F# source files: the project (.fsproj) and a sour
 ## Where to go from here
 
 - [Fable samples](https://github.com/fable2-samples)
-- templates:
+- dotnet templates:
   - `Fable.Template.Elmish.React`
   - `SAFE.Template`
 - [awesome-fable](https://github.com/kunjee17/awesome-fable#-awesome-fable)

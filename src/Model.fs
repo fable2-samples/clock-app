@@ -4,13 +4,13 @@ type Time = int list
 
 type Message = 
     | Tick
-    | StartOver
-    | KeyPress
+    | Reset
+    | Start
 
 type Status =
     | Initial 
-    | JustStarted   
-    | Stopped
+    | Ticking   
 
 
-type TypingModel = { Status: Status; Time : Time; }
+
+type Model = { Status: Status; Time : Time; }

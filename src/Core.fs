@@ -12,9 +12,7 @@ let updateTime (timer:int list) =
 
 
 
-let update (model : TypingModel) = function
+let update (model : Model) = function
     | Tick -> { model with Time = updateTime model.Time}
-    | StartOver ->  {model with Status = Initial; Time = [0;0;0;0]; }
-    | KeyPress when model.Status = Initial -> { model with Status = JustStarted}
-
-
+    | Reset ->  {model with Status = Initial; Time = [0;0;0;0]; }
+    | Start when model.Status = Initial -> { model with Status = Ticking}

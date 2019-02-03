@@ -5,12 +5,13 @@ open Fable.Import.Browser
 open Model
 open Core
 
-let theTimer = document.querySelector(".timer") :?> HTMLElement
+let theTimer = document.querySelector("#timer") :?> HTMLElement
 let resetButton = document.querySelector("#reset") :?> HTMLButtonElement
 let startButton = document.querySelector("#start") :?> HTMLButtonElement
 
 let model = 
-    { Status = Initial; Time =[0;0;0;0] } : TypingModel
+    { Status = Initial; Time =[0;0;0;0] } : Model
+
 let viewTime (timer : Time) =
     let leadingZero section =
         if (section <= 9) then
@@ -21,32 +22,39 @@ let viewTime (timer : Time) =
     theTimer.innerHTML <- currentTime;
 
 let stopTimer () =
+    printf "stop timer"
     window.clearInterval !!(window?myInterval)
     window?myInterval <- null
+
+let tickInterval = 1000
 
 let view { Status = status; Time = time} (dispatcher: MailboxProcessor<Message>) =
     match status with
     | Initial ->
+        printf "view: Initial"
         theTimer.innerHTML <- "00:00:00"
         stopTimer()
-    | JustStarted ->
+    | Ticking ->
+        printf "view: Ticking"
         if !!(window?myInterval) |> isNull then
-            let interval = window.setInterval  ((fun () -> dispatcher.Post Tick), 10, [])
+            let interval = window.setInterval  ((fun () -> dispatcher.Post Tick), tickInterval, [])
             window?myInterval <- interval
-    | _ -> 
-        viewTime time
+    viewTime time
 
 
 
 #nowarn "40"
-let rec dispatcher = MailboxProcessor<Message>.Start(fun inbox->
-
+let rec dispatcher = MailboxProcessor<Message>.Start(fun inbox->    
     // the message processing function
-    let rec messageLoop (model : TypingModel) = async{
+    let rec messageLoop (model : Model) = async{
         // read a message
         let! msg = inbox.Receive()
+        printf "inbox: received msg"
+        printf "update model using msg"
         // process a message
         let newModel = update model msg
+        printf "new model"
+        printf "render view using new model"        
         view newModel dispatcher
         // loop to top
         return! messageLoop newModel}
@@ -54,6 +62,9 @@ let rec dispatcher = MailboxProcessor<Message>.Start(fun inbox->
     // start the loop
     messageLoop model)
 
-document.addEventListener_keypress (fun _ -> dispatcher.Post (KeyPress) |> ignore)
-startButton.addEventListener_click (fun _ -> dispatcher.Post (KeyPress) |> ignore)
-resetButton.addEventListener_click (fun _ -> dispatcher.Post (StartOver) |> ignore)
+// press any key: Start 
+document.addEventListener_keypress (fun _ -> dispatcher.Post (Start) |> ignore)
+// click on start button: Start
+startButton.addEventListener_click (fun _ -> dispatcher.Post (Start) |> ignore)
+// click on reset button: Reset
+resetButton.addEventListener_click (fun _ -> dispatcher.Post (Reset) |> ignore)
