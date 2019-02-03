@@ -26,6 +26,7 @@ let stopTimer () =
     window.clearInterval !!(window?myInterval)
     window?myInterval <- null
 
+// default: 1 second tick interval
 let tickInterval = 1000
 
 let view { Status = status; Time = time} (dispatcher: MailboxProcessor<Message>) =
@@ -49,12 +50,16 @@ let rec dispatcher = MailboxProcessor<Message>.Start(fun inbox->
     let rec messageLoop (model : Model) = async{
         // read a message
         let! msg = inbox.Receive()
-        printf "inbox: received msg"
-        printf "update model using msg"
+        printf "inbox: received msg %s" (msgToStr msg)
+        printf "update model"
         // process a message
         let newModel = update model msg
-        printf "new model"
+
+        printf "new model:"
+        printf " - Status %s" (statToStr model.Status)
+        printf " - Time %A" model.Time
         printf "render view using new model"        
+
         view newModel dispatcher
         // loop to top
         return! messageLoop newModel}

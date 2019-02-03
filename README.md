@@ -84,6 +84,10 @@ The `view` function updates the view depending on the incoming app `Status` that
 
 On any view call, it calls `viewTime` with the current `time` to be displayed in the timer element (`#timer`).
 
+To control the tick interval (how fast clock is ticking) simply set the `tickInterval`
+
+`let tickInterval = 1000` (default: 1 second)
+
 ## Requirements
 
 - [dotnet SDK](https://www.microsoft.com/net/download/core) 2.0 or higher
